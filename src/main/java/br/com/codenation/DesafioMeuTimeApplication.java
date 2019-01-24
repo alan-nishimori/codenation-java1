@@ -15,11 +15,14 @@ import br.com.codenation.desafio.exceptions.TimeNaoEncontradoException;
 
 public class DesafioMeuTimeApplication implements MeuTimeInterface {
 
+	public static final String TIME_NAO_ENCONTRADO = "Time não encontrado.";
+	public static final String JOGADOR_NAO_ENCONTRADO = "Jogador não encontrado.";
+
 	List<Time> times = new ArrayList<>();
 	List<Jogador> jogadores = new ArrayList<>();
 
 	@Desafio("incluirTime")
-	public void incluirTime(Long id, String nome, LocalDate dataCriacao, String corUniformePrincipal, String corUniformeSecundario) throws IdentificadorUtilizadoException {
+	public void incluirTime(Long id, String nome, LocalDate dataCriacao, String corUniformePrincipal, String corUniformeSecundario) {
 		if (buscaJogadorPorId(id).isPresent()) {
 			throw new IdentificadorUtilizadoException("Id de time em uso.");
 		}
@@ -28,15 +31,15 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 	}
 
 	@Desafio("incluirJogador")
-	public void incluirJogador(Long id, Long idTime, String nome, LocalDate dataNascimento, Integer nivelHabilidade, BigDecimal salario) throws IdentificadorUtilizadoException, TimeNaoEncontradoException {
+	public void incluirJogador(Long id, Long idTime, String nome, LocalDate dataNascimento, Integer nivelHabilidade, BigDecimal salario) {
 		if (buscaJogadorPorId(id).isPresent()) {
 			throw new IdentificadorUtilizadoException("Id de jogador em uso.");
 		}
 
 		Optional<Time> time = buscaTimePorId(id);
 
-		if (time.isEmpty()) {
-			throw new TimeNaoEncontradoException("Time não encontrado.");
+		if (!time.isPresent()) {
+			throw new TimeNaoEncontradoException(TIME_NAO_ENCONTRADO);
 		}
 
 		jogadores.add(new Jogador(id, idTime, nome, dataNascimento, nivelHabilidade, salario));
@@ -44,10 +47,10 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 	}
 
 	@Desafio("definirCapitao")
-	public void definirCapitao(Long idJogador) throws JogadorNaoEncontradoException {
+	public void definirCapitao(Long idJogador) {
 		Optional<Jogador> jogador = buscaJogadorPorId(idJogador);
 
-		if (jogador.isEmpty()) {
+		if (!jogador.isPresent()) {
 			throw new JogadorNaoEncontradoException("Id de jogador inválida.");
 		}
 
@@ -56,11 +59,11 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 	}
 
 	@Desafio("buscarCapitaoDoTime")
-	public Long buscarCapitaoDoTime(Long idTime) throws TimeNaoEncontradoException, CapitaoNaoInformadoException {
+	public Long buscarCapitaoDoTime(Long idTime) {
 		Optional<Time> time = buscaTimePorId(idTime);
 
-		if (time.isEmpty()) {
-			throw new TimeNaoEncontradoException("Time não encontrado.");
+		if (!time.isPresent()) {
+			throw new TimeNaoEncontradoException(TIME_NAO_ENCONTRADO);
 		}
 
 		if (time.get().getCapitao() == null) {
@@ -71,52 +74,96 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 	}
 
 	@Desafio("buscarNomeJogador")
-	public String buscarNomeJogador(Long idJogador) throws JogadorNaoEncontradoException {
+	public String buscarNomeJogador(Long idJogador) {
 		Optional<Jogador> jogador = buscaJogadorPorId(idJogador);
 
 		if (jogador.isPresent()) {
 			return jogador.get().getNome();
 		}
 
-		throw new JogadorNaoEncontradoException("Jogador não encontrado.");
+		throw new JogadorNaoEncontradoException(JOGADOR_NAO_ENCONTRADO);
 	}
 
 	@Desafio("buscarNomeTime")
-	public String buscarNomeTime(Long idTime) throws TimeNaoEncontradoException {
+	public String buscarNomeTime(Long idTime) {
 		Optional<Time> time = buscaTimePorId(idTime);
 
 		if (time.isPresent()) {
 			return time.get().getNome();
 		}
 
-		throw new TimeNaoEncontradoException("Time não encontrado.");
+		throw new TimeNaoEncontradoException(TIME_NAO_ENCONTRADO);
 	}
 
 	@Desafio("buscarJogadoresDoTime")
-	public List<Long> buscarJogadoresDoTime(Long idTime) throws TimeNaoEncontradoException {
+	public List<Long> buscarJogadoresDoTime(Long idTime) {
 		Optional<Time> time = buscaTimePorId(idTime);
 
-		if (time.isEmpty()) {
-			throw new TimeNaoEncontradoException("Time não encontrado.");
+		if (!time.isPresent()) {
+			throw new TimeNaoEncontradoException(TIME_NAO_ENCONTRADO);
 		}
 
-		return Collections.sort(time.get().getJogadores(), new Comparator<Long>() {
-			@Override
-			public int compare(Long o1, Long o2) {
-				return o1.intValue() - o2.intValue();
-			}
-		});
+		List<Long> idJogadores = time.get().getJogadores();
+
+		Collections.sort(idJogadores);
+
+		return idJogadores;
 
 	}
 
 	@Desafio("buscarMelhorJogadorDoTime")
 	public Long buscarMelhorJogadorDoTime(Long idTime) {
-		throw new UnsupportedOperationException();
+		Optional<Time> time = buscaTimePorId(idTime);
+
+		if (!time.isPresent()) {
+		    throw new TimeNaoEncontradoException(TIME_NAO_ENCONTRADO);
+        }
+
+        Jogador melhorJogador = null;
+
+		for(Long idJogador : time.get().getJogadores()) {
+		    Optional<Jogador> cmpJogador = buscaJogadorPorId(idJogador);
+		    if (!cmpJogador.isPresent()) {
+		        throw new JogadorNaoEncontradoException(JOGADOR_NAO_ENCONTRADO);
+            }
+
+            if (melhorJogador != null) {
+                if (melhorJogador.getNivelHabilidade() < cmpJogador.get().getNivelHabilidade()) {
+                    melhorJogador = cmpJogador.get();
+                }
+            } else {
+                melhorJogador = cmpJogador.get();
+            }
+        }
+
+        return melhorJogador.getId();
 	}
 
 	@Desafio("buscarJogadorMaisVelho")
 	public Long buscarJogadorMaisVelho(Long idTime) {
-		throw new UnsupportedOperationException();
+        Optional<Time> time = buscaTimePorId(idTime);
+
+        if (!time.isPresent()) {
+            throw new TimeNaoEncontradoException(TIME_NAO_ENCONTRADO);
+        }
+
+        Jogador melhorJogador = null;
+
+        for(Long idJogador : time.get().getJogadores()) {
+            Optional<Jogador> cmpJogador = buscaJogadorPorId(idJogador);
+            if (!cmpJogador.isPresent()) {
+                throw new JogadorNaoEncontradoException(JOGADOR_NAO_ENCONTRADO);
+            }
+
+            if (melhorJogador != null) {
+                if ((melhorJogador.getDataNascimento().isBefore(cmpJogador.get().getDataNascimento())) ||
+                    (melhorJogador.getDataNascimento().isEqual(cmpJogador.get().getDataNascimento()) && melhorJogador.getId() > cmpJogador.get().getId())
+                ) {
+                    melhorJogador = cmpJogador.get();
+            } else {
+                melhorJogador = cmpJogador.get();
+            }
+        }
 	}
 
 	@Desafio("buscarTimes")

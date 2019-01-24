@@ -18,7 +18,7 @@ public class Time {
 
     private Jogador capitao = null;
 
-    private List<Long> jogadores = new ArrayList<>();
+    private List<Jogador> jogadores = new ArrayList<>();
 
     public Time(Long id, String nome, LocalDate dataCriacao, String corUniformePrincipal, String corUniformeSecundario) {
         this.id = id;
@@ -76,11 +76,11 @@ public class Time {
         this.capitao = capitao;
     }
 
-    public void adicionaJogador(Long id) {
-        this.jogadores.add(id);
+    public List<Jogador> getJogadores () {
+        return this.jogadores;
     }
 
-    public List<Long> getJogadores() {
-        return jogadores;
+    public void adicionaJogadores (Jogador jogador) {
+        this.jogadores.add(jogador);
     }
 }

@@ -80,7 +80,7 @@ public class Time {
         return this.jogadores;
     }
 
-    public void adicionaJogadores (Jogador jogador) {
+    public void adicionaJogador (Jogador jogador) {
         this.jogadores.add(jogador);
     }
 }

@@ -28,7 +28,7 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 			throw new IdentificadorUtilizadoException("Id de time em uso.");
 		}
 
-		times.add(new Time(id, nome, dataCriacao, corUniformePrincipal, corUniformeSecundario));
+		this.times.add(new Time(id, nome, dataCriacao, corUniformePrincipal, corUniformeSecundario));
 	}
 
 	@Desafio("incluirJogador")
@@ -45,7 +45,7 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 
 		Jogador jogadorNovo = new Jogador(id, idTime, nome, dataNascimento, nivelHabilidade, salario);
 
-		jogadores.add(jogadorNovo);
+		this.jogadores.add(jogadorNovo);
 		time.get().adicionaJogador(jogadorNovo);
 	}
 
@@ -54,7 +54,7 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 		Optional<Jogador> jogador = buscaJogadorPorId(idJogador);
 
 		if (!jogador.isPresent()) {
-			throw new JogadorNaoEncontradoException("Id de jogador inválida.");
+			throw new JogadorNaoEncontradoException(JOGADOR_NAO_ENCONTRADO);
 		}
 
 		Optional<Time> time = buscaTimePorId(jogador.get().getIdTime());
@@ -140,7 +140,7 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 		List<Jogador> jogadoresTime = time.get().getJogadores();
 
 		jogadoresTime.sort(
-				Comparator.comparing(Jogador::getDataNascimento).reversed()
+				Comparator.comparing(Jogador::getDataNascimento)
 				.thenComparingLong(Jogador::getId)
 		);
 
@@ -192,7 +192,11 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
                 .thenComparingLong(Jogador::getId)
         );
 
-		return this.jogadores.stream().map(Jogador::getId).collect(Collectors.toList()).subList(0, top);
+        try {
+            return this.jogadores.stream().map(Jogador::getId).collect(Collectors.toList()).subList(0, top);
+        } catch (IndexOutOfBoundsException e) {
+            return new ArrayList<>();
+        }
 
 	}
 

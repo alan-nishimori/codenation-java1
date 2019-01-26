@@ -3,6 +3,8 @@ package br.com.codenation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import br.com.codenation.Model.Jogador;
 import br.com.codenation.Model.Time;
@@ -107,14 +109,7 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 
 		List<Jogador> jogadoresTime = time.get().getJogadores();
 
-		List<Long> idJogadores = new ArrayList<>();
-
-		jogadoresTime.forEach(j -> idJogadores.add(j.getIdTime()));
-
-		Collections.sort(idJogadores);
-
-		return idJogadores;
-
+		return jogadoresTime.stream().map(Jogador::getId).sorted().collect(Collectors.toList());
 	}
 
 	@Desafio("buscarMelhorJogadorDoTime")
@@ -155,9 +150,7 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 
 	@Desafio("buscarTimes")
 	public List<Long> buscarTimes() {
-		List<Long> timesCadastrados = new ArrayList<>();
-		this.times.forEach(t -> timesCadastrados.add(t.getId()));
-		return timesCadastrados;
+	    return this.times.stream().map(Time::getId).sorted().collect(Collectors.toList());
 	}
 
 	@Desafio("buscarJogadorMaiorSalario")
@@ -191,17 +184,17 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 
 	@Desafio("buscarTopJogadores")
 	public List<Long> buscarTopJogadores(Integer top) {
+        if (this.jogadores.size() == 0) {
+            return new ArrayList<>();
+        }
+
 		this.jogadores.sort(Comparator.comparingInt(
 		        Jogador::getNivelHabilidade).reversed()
                 .thenComparingLong(Jogador::getId)
         );
-		List<Long> topJogadores = new ArrayList<>();
 
-		for (int i = 0; i < top; i++) {
-		    topJogadores.add(this.jogadores.get(i).getId());
-        }
+		return this.jogadores.stream().map(Jogador::getId).collect(Collectors.toList()).subList(0, top);
 
-		return topJogadores;
 	}
 
 	@Desafio("buscarCorCamisaTimeDeFora")
@@ -224,4 +217,5 @@ public class DesafioMeuTimeApplication implements MeuTimeInterface {
 	private Optional<Jogador> buscaJogadorPorId(Long id) {
 		return this.jogadores.stream().filter(j -> j.getId().equals(id)).findFirst();
 	}
+
 }

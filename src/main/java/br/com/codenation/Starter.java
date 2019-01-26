@@ -1,8 +1,5 @@
 package br.com.codenation;
 
-import br.com.codenation.Model.Jogador;
-import br.com.codenation.Model.Time;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 

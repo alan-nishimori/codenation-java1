@@ -3,7 +3,6 @@ package br.com.codenation;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import br.com.codenation.Model.Jogador;
